@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { News } from './news.model';
+import { resolve } from 'q';
 
 @Injectable()
 export class NewsService {
@@ -14,7 +15,7 @@ export class NewsService {
 
   result: News[] = [];
 
-
+  
   getNews(): News[] {
     const myNews: News[] = [];
     this.http.get(this.testUrl)
@@ -24,11 +25,27 @@ export class NewsService {
                           element.content, element.publishedAt, element.source,
                           element.url, element.urlToImage);
         this.result.push(temp);
-
         });
         console.log(this.result);
       });
     return myNews;
   }
 
+  getHeadlineImages(): Promise<any> {
+    const images = [];
+    return new Promise( res => {
+      this.http.get(this.testUrl)
+      .subscribe( data => {
+        console.log(data);
+        data.articles.forEach(element => {
+          const item = element.urlToImage;
+          if (item !== null) {
+            images.push(item);
+          }
+        });
+          resolve(images);
+      });
+    });
+
+  }
 }
